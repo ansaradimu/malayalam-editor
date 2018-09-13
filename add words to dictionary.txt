@@ -1,0 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using System.IO;
+namespace Aksharam
+{
+    public partial class Form6 : Form
+    {
+        public Form6()
+        {
+            InitializeComponent();
+        }
+       
+        
+        private void Form6_Load(object sender, EventArgs e)
+        {
+            
+           
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (textBox1.Text != "" && textBox2.Text != "")
+            {
+                StreamReader sr;
+                StreamWriter sw;
+                FileStream fs;
+                try
+                {
+                    fs = new FileStream(@"dict\dict.dic", FileMode.Open, FileAccess.ReadWrite);
+                    
+                    sr = new StreamReader(fs);
+                    string[] t = new string[] { };
+                    string rword = "";
+                    int found = 0; rword = sr.ReadLine();
+                    sr.BaseStream.Seek(0, SeekOrigin.End);
+                    while (!sr.EndOfStream)
+                    {
+                        rword = sr.ReadLine();
+                        t = rword.Split(new char[] { ' ' }, StringSplitOptions.None);
+                        if (t[0] == textBox1.Text.ToLower())
+                        {
+                            found = 1;
+                            MessageBox.Show("Word already Existing!!!!!!", "Dictionary");
+                            break;
+                        }
+                    }
+                    
+
+                    if (found == 0)
+                    {
+
+                        sr = new StreamReader(fs);
+                        if (sr.Peek() == -1)
+                        {
+                            sw = new StreamWriter(fs);
+                            sw.WriteLine();
+                            sw.Write(textBox1.Text.ToLower().Trim() + " " + textBox2.Text.Trim());
+                            sw.Flush();
+                            MessageBox.Show("Word successfully added!!!");
+
+                        }
+
+                        sr.Close();
+
+
+                    }
+                    sr.Close();
+                    textBox1.Text = "";
+                    textBox2.Text = "";
+                    textBox1.Focus();
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Enter words in Text Boxes!!!!");
+                textBox1.Text = "";
+                textBox2.Text = "";
+                textBox1.Focus();
+            }
+        }
+
+       
+    }
+}

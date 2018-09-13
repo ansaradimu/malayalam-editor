@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Data.OleDb;
+using System.IO;
+namespace Aksharam
+{
+    public partial class Form2 : Form
+    {
+        DatBase c = new DatBase();
+        int i=0;
+        char[] sep = new char[] { '.', ' ', ':', ';', '!', '*', '(', ')', '_', '+', ',', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '<', '>', '=', '-', '?', '\n','\t','\'','"' };
+        string s;
+        string p;
+        string k = "";
+        int l, li = 0, si;
+        public string rword;
+        public string nword;
+        public string delim;
+        public string data;
+        public bool more = true;
+        public Form2()
+        {
+            InitializeComponent();
+        }
+        StreamReader sr = new StreamReader(@"dict\dict.dic", Encoding.Default);
+        string[] tokens = new string[] { };
+       
+        string line;
+
+        public string getTokens(string data)
+        {
+            string newmword = null;
+            sr.BaseStream.Seek(0, SeekOrigin.Begin);
+            while (!sr.EndOfStream)
+            {
+                line = sr.ReadLine();
+                tokens = line.Split(new char[] { ' ' }, StringSplitOptions.None);
+                if (tokens[0] == data)
+                {
+                   newmword = tokens[1]; break;
+                }
+            }
+
+            return newmword;
+        }
+       
+        public string show(string text)
+        {
+            string t;
+            c.connect();
+            c.cmd = new SqlCommand("select english,malayalam from dict where english=@eng", c.con);
+            c.cmd.Parameters.AddWithValue("@eng",text);
+            c.dr = c.cmd.ExecuteReader();
+            if (c.dr.Read())
+            {
+              
+                t = c.dr[1].ToString();
+                if (text == "is")
+                {
+                    rword = t;
+                }
+            }
+            else
+            {               
+                t = "";
+            }
+            c.dr.Close();
+            if (delim == ".")
+            { 
+            
+            }
+            return t;
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            rt2.Clear();
+            data = rt1.Text;
+            while (more)
+            {
+                rt2.Text += getTokens(NextWord());
+                rt2.Text += delim;
+
+            } more = true;
+        }
+        public string NextWord()
+        {
+            string word = "";
+            int index = data.IndexOfAny(sep,0);
+            if (index != -1)
+            {
+                delim = data.Substring(index, 1);
+                word = data.Substring(0, index);
+                data = data.Substring(index + 1);
+
+            }
+            else
+            {
+                delim = "";
+                word = data.Substring(0);
+                data = "";
+            }
+            if (data.Length == 0)
+            {
+                more = false;
+            }
+            return word;
+        }
+
+        private void rt1_TextChanged(object sender, EventArgs e)
+        {
+            rt2.Clear();
+            data = rt1.Text.ToLower();
+            while (more)
+            {
+
+                rt2.Text += getTokens(NextWord());
+             
+                rt2.Text += delim;
+                
+            } more = true;
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            
+            rt1.TabIndex = 0;
+            rt1.TabStop = true;
+            rt1.Focus();
+           
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+
+        }
+
+        private void rt2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form2_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            sr.Close();
+        }
+    }
+}
